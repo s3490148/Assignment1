@@ -1,6 +1,7 @@
-// - add translate and rotate functions
-// - add ENTER and DELETE background saves
 // - add mouse control over translate/rotate
+// - - figured this out - just need to implement
+
+// - add ENTER and DELETE background saves
 // - add colour tints to the png brushes
 //
 // ------------------------------------------------
@@ -9,11 +10,9 @@
 boolean welcome_b; // show the welcome screen or not?
 
 int brush_size;
-int translateX;
-int translateY;
+int translate;
 int rotate;
 int recur;
-int undo;
 
 PImage canvas_temp; // a name for the saved screen
 
@@ -40,8 +39,7 @@ void setup() {
   // ----- define variables -----
   welcome_b = false; // set this to true to get the welcome screen to show
   brush_size = 10;
-  translateX = 1;
-  translateY = 1;
+  translate = 1;
   rotate = 3;
   recur = 10;
   brushes_index = 0;
@@ -54,9 +52,16 @@ void setup() {
 // ------------------------------------------------
 void update() {
   if (recur < 1) recur = 1;
-  if (translateX < 0) translateX = 0;
-  if (translateX < 0) translateX = 0;
-  rotate = mouseX;
+  if (translate < 1) translate = 1;
+
+  if (keyPressed) {
+    if (key == 'r') {
+      rotate = mouseX;
+    }
+    if (key == 'x') {
+      translateX = (int)map(mouseX, 0, width, 0, 10);
+    }
+  }
 }// ------------------------------------------------
 
 
@@ -84,7 +89,6 @@ void mouseDragged() {
 // ------------------------------------------------
 void mouseMoved() {
   //if (keyPressed == true) translateX = (int)map(mouseX, 0, width, 0, 100);
-  //if (keyPressed == true) translateY = (int)map(mouseY, 0, width, 0, 100);=
 }// ------------------------------------------------
 
 
@@ -119,16 +123,12 @@ void keyPressed() {
   }
 
   if (key == ',') {
-    translateX = translateX/2;
-    translateY = translateY/2;
-    println("translateX: " + translateX);
-    println("translateY: " + translateY);
+    translate = translate/2;
+    println("translate: " + translate);
   }
-  if (key == '.' && translateX < 300) { // set maximum translation
-    translateX = translateX*2;
-    translateY = translateY*2;
-    println("translateX: " + translateX);
-    println("translateY: " + translateY);
+  if (key == '.' && translate < 300) { // set maximum translation
+    translate = translate*2;
+    println("translate: " + translate);
   }
 
   if (key == '1') brushes_index = 0; // set brushes array index
@@ -136,8 +136,9 @@ void keyPressed() {
   if (key == '3') brushes_index = 2;
   if (key == '4') brushes_index = 3;
   if (key == 'c') strokes.clear();
+  if (key == 's') saveFrame("drawthing-####.png");
 
-
+  //// couldn't get this undo function working
   //if (key == 'z') {
   //  undo = strokes.size();
   //  if (undo > 0) {
@@ -145,9 +146,6 @@ void keyPressed() {
   //    strokes.remove(undo);
   //  }
   //}
-
-
-  if (key == 's') saveFrame("drawthing-####.png");
 } // -------------------------------------------
 
 
@@ -190,10 +188,8 @@ void paint() { // draw the currently populated array
 
     for (int r = 0; r < recur; r++) {
       stroke.set_size(brush_size);
-      stroke.set_translateX(translateX*r);
-      stroke.set_translateY(translateY*r);
-      stroke.set_rotateX((int)map(mouseX, 0, width, 0, 360));
-      stroke.set_rotateY((int)map(mouseY, 0, width, 0, 90));
+      stroke.set_translate(translate*r);
+      stroke.set_rotate((int)map(rotate, 0, width, 0, 360));
       stroke.set_recur(recur);
       stroke.draw();
     }
@@ -240,8 +236,9 @@ void welcome_screen() {
 
 
 
-
+//// =============================================
 //// this might be a way to select an image folder
+//// =============================================
 
 //// ------------------------------------------------
 //void setup() {
